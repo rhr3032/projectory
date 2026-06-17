@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import { ArrowLeft, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 
 const schema = z.object({
   name: z.string().min(1, "Project name is required").max(100),
@@ -35,6 +36,10 @@ const schema = z.object({
   clientContact: z.string().optional(),
   previewLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   resourceLinks: z.array(z.object({ url: z.string().url("Must be a valid URL").or(z.literal("")) })).optional(),
+  overview: z.string().optional(),
+  businessGoal: z.string().optional(),
+  targetAudience: z.string().optional(),
+  competitors: z.string().optional(),
   tags: z.string().optional(),
 });
 
@@ -62,6 +67,10 @@ export default function NewProject() {
       clientContact: "",
       previewLink: "",
       resourceLinks: [],
+      overview: "",
+      businessGoal: "",
+      targetAudience: "",
+      competitors: "",
       tags: "",
     },
   });
@@ -85,6 +94,10 @@ export default function NewProject() {
       clientContact: values.clientContact || undefined,
       previewLink: values.previewLink || undefined,
       resourceLinks: values.resourceLinks?.map((r) => r.url).filter(Boolean) || undefined,
+      overview: values.overview || undefined,
+      businessGoal: values.businessGoal || undefined,
+      targetAudience: values.targetAudience || undefined,
+      competitors: values.competitors || undefined,
       tags: values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
     });
     navigate("/projects");
@@ -411,6 +424,87 @@ export default function NewProject() {
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Project Strategy */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project Strategy</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="overview"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Short Overview</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="A concise 1–2 sentence summary of what this project is and why it matters."
+                        className="resize-none"
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="businessGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Goal</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="What business outcome does this project achieve? e.g. Increase conversion by 20%."
+                        className="resize-none"
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="targetAudience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Audience</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Who is this project designed for? Describe the primary users."
+                        className="resize-none"
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="competitors"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Competitors <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="List competing products or alternatives, e.g. Notion, Linear, Asana."
+                        className="resize-none"
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 

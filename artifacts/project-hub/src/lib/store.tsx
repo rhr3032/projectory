@@ -24,6 +24,10 @@ export interface Project {
   clientContact?: string;
   previewLink?: string;
   resourceLinks?: string[];
+  overview?: string;
+  businessGoal?: string;
+  targetAudience?: string;
+  competitors?: string;
   tags?: string[];
 }
 
@@ -63,6 +67,10 @@ const mockProjects: Project[] = [
     clientContact: "contact@finco.com",
     previewLink: "https://preview.finco.app",
     resourceLinks: ["https://figma.com/file/banking-app", "https://docs.finco.app"],
+    overview: "A full redesign and rebuild of FinCo's flagship mobile banking app for iOS and Android.",
+    businessGoal: "Increase mobile MAU by 35% and reduce support tickets by streamlining core banking flows.",
+    targetAudience: "Retail banking customers aged 22–55 who manage finances primarily on mobile.",
+    competitors: "Revolut, Monzo, N26",
     tags: ["fintech", "react-native", "critical"]
   },
   {
@@ -114,6 +122,10 @@ const mockProjects: Project[] = [
     clientName: "ShopFast Inc",
     clientContact: "pm@shopfast.io",
     previewLink: "https://shopfast.io/checkout",
+    overview: "Optimize the e-commerce checkout funnel to reduce cart abandonment and add modern payment options.",
+    businessGoal: "Increase checkout conversion rate from 62% to 78% and boost average order value.",
+    targetAudience: "Online shoppers across desktop and tablet, primarily aged 25–45.",
+    competitors: "Shopify Checkout, Stripe Checkout",
     tags: ["payments", "conversion"]
   },
   {

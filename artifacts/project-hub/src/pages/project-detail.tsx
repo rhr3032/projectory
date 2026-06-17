@@ -4,6 +4,7 @@ import { useProjects } from "@/lib/store";
 import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort, ProjectDevice } from "@/lib/store";
 import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge, DeviceBadge } from "@/components/project-badges";
 import { RichTextEditor, RichTextDisplay } from "@/components/rich-text-editor";
+import { Textarea } from "@/components/ui/textarea";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -52,6 +53,10 @@ const schema = z.object({
   clientContact: z.string().optional(),
   previewLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   resourceLinks: z.array(z.object({ url: z.string().url("Must be a valid URL").or(z.literal("")) })).optional(),
+  overview: z.string().optional(),
+  businessGoal: z.string().optional(),
+  targetAudience: z.string().optional(),
+  competitors: z.string().optional(),
   tags: z.string().optional(),
 });
 
@@ -88,6 +93,10 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           clientContact: project.clientContact || "",
           previewLink: project.previewLink || "",
           resourceLinks: project.resourceLinks?.map((url) => ({ url })) || [],
+          overview: project.overview || "",
+          businessGoal: project.businessGoal || "",
+          targetAudience: project.targetAudience || "",
+          competitors: project.competitors || "",
           tags: project.tags?.join(", ") || "",
         }
       : undefined,
@@ -124,6 +133,10 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       clientContact: values.clientContact || undefined,
       previewLink: values.previewLink || undefined,
       resourceLinks: values.resourceLinks?.map((r) => r.url).filter(Boolean) || undefined,
+      overview: values.overview || undefined,
+      businessGoal: values.businessGoal || undefined,
+      targetAudience: values.targetAudience || undefined,
+      competitors: values.competitors || undefined,
       tags: values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
     });
     setEditing(false);
@@ -411,6 +424,50 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
 
             <Card>
               <CardHeader className="pb-4">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project Strategy</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField control={form.control} name="overview" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Short Overview</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="A concise 1–2 sentence summary of this project." className="resize-none" rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="businessGoal" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Goal</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="What business outcome does this project achieve?" className="resize-none" rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="targetAudience" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Audience</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Who is this project designed for?" className="resize-none" rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="competitors" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Competitors <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="e.g. Notion, Linear, Asana" className="resize-none" rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</CardTitle>
               </CardHeader>
               <CardContent>
@@ -574,6 +631,41 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                         </a>
                       ))}
                     </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Project Strategy */}
+          {(project.overview || project.businessGoal || project.targetAudience || project.competitors) && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project Strategy</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {project.overview && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">Overview</p>
+                    <p className="text-sm leading-relaxed">{project.overview}</p>
+                  </div>
+                )}
+                {project.businessGoal && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">Business Goal</p>
+                    <p className="text-sm leading-relaxed">{project.businessGoal}</p>
+                  </div>
+                )}
+                {project.targetAudience && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">Target Audience</p>
+                    <p className="text-sm leading-relaxed">{project.targetAudience}</p>
+                  </div>
+                )}
+                {project.competitors && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">Competitors</p>
+                    <p className="text-sm leading-relaxed">{project.competitors}</p>
                   </div>
                 )}
               </CardContent>
