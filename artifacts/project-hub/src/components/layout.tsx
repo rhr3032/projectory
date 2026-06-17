@@ -50,7 +50,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Hexagon className="w-4 h-4" strokeWidth={2.5} />
         </div>
         <div>
-          <p className="font-semibold text-sm leading-none" style={{ fontFamily: "var(--app-font-display)" }}>Project Hub</p>
+          <p className="font-semibold text-sm leading-none" style={{ fontFamily: "var(--app-font-display)" }}>Projectory</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">Design & Dev Projects</p>
         </div>
       </div>
@@ -138,7 +138,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground">
               <Hexagon className="w-3.5 h-3.5" strokeWidth={2.5} />
             </div>
-            <span className="font-semibold text-sm" style={{ fontFamily: "var(--app-font-display)" }}>Project Hub</span>
+            <span className="font-semibold text-sm" style={{ fontFamily: "var(--app-font-display)" }}>Projectory</span>
           </div>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMobileOpen(true)}>
             <Menu className="w-4 h-4" />

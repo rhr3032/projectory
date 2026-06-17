@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Project Hub"
+title = "Projectory"
 version = "1.0.0"
 id = "artifacts/project-hub"
 router = "path"
