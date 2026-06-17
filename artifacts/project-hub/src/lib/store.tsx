@@ -4,6 +4,7 @@ export type ProjectStatus = "Planning" | "In Progress" | "Review" | "Completed" 
 export type ProjectType = "UI/UX Design" | "Web App" | "Mobile App";
 export type ProjectPriority = "Critical" | "High" | "Medium" | "Low";
 export type ProjectEffort = "XS" | "S" | "M" | "L" | "XL";
+export type ProjectDevice = "Desktop" | "Mobile" | "Tablet" | "TV" | "POS" | "Other";
 
 export interface Project {
   id: string;
@@ -13,6 +14,7 @@ export interface Project {
   owner: string;
   priority: ProjectPriority;
   effort: ProjectEffort;
+  device?: ProjectDevice;
   description: string;
   createdAt: string;
   dueDate?: string;
@@ -28,6 +30,7 @@ const mockProjects: Project[] = [
     owner: "Alex Rivera",
     priority: "High",
     effort: "L",
+    device: "Desktop",
     description: "Overhaul the existing design system to support dark mode and better accessibility.",
     createdAt: "2023-09-15T10:00:00Z",
     dueDate: "2023-11-01",
@@ -41,6 +44,7 @@ const mockProjects: Project[] = [
     owner: "Sarah Chen",
     priority: "Critical",
     effort: "XL",
+    device: "Mobile",
     description: "Complete redesign and native development of the core banking application.",
     createdAt: "2023-05-10T08:30:00Z",
     dueDate: "2023-10-15",
@@ -54,6 +58,7 @@ const mockProjects: Project[] = [
     owner: "Jordan Lee",
     priority: "Medium",
     effort: "M",
+    device: "Desktop",
     description: "Add new analytics charts and data export capabilities to the admin dashboard.",
     createdAt: "2023-10-01T14:20:00Z",
     tags: ["data", "charts"]
@@ -66,6 +71,7 @@ const mockProjects: Project[] = [
     owner: "Alex Rivera",
     priority: "High",
     effort: "S",
+    device: "Mobile",
     description: "Streamline the user onboarding process to reduce drop-off rates.",
     createdAt: "2023-09-28T09:15:00Z",
     dueDate: "2023-10-20",
@@ -79,6 +85,7 @@ const mockProjects: Project[] = [
     owner: "Taylor Kim",
     priority: "Critical",
     effort: "L",
+    device: "Tablet",
     description: "Implement one-click checkout and alternative payment methods.",
     createdAt: "2023-07-05T11:00:00Z",
     dueDate: "2023-09-10",
@@ -92,6 +99,7 @@ const mockProjects: Project[] = [
     owner: "Sarah Chen",
     priority: "Low",
     effort: "S",
+    device: "Mobile",
     description: "Create home screen widgets for quick account balance viewing.",
     createdAt: "2023-08-12T16:45:00Z",
     tags: ["ios", "nice-to-have"]
@@ -104,6 +112,7 @@ const mockProjects: Project[] = [
     owner: "Jordan Lee",
     priority: "Medium",
     effort: "M",
+    device: "Desktop",
     description: "Update the public marketing site with the new brand guidelines.",
     createdAt: "2023-10-05T10:30:00Z",
     dueDate: "2023-12-01",
@@ -117,6 +126,7 @@ const mockProjects: Project[] = [
     owner: "Taylor Kim",
     priority: "High",
     effort: "M",
+    device: "Desktop",
     description: "Move user settings to the new scalable database architecture.",
     createdAt: "2023-09-20T13:00:00Z",
     tags: ["backend", "tech-debt"]

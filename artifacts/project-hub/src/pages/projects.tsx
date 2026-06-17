@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useProjects } from "@/lib/store";
-import type { ProjectStatus, ProjectPriority, ProjectType } from "@/lib/store";
-import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge } from "@/components/project-badges";
+import type { ProjectStatus, ProjectPriority, ProjectType, ProjectDevice } from "@/lib/store";
+import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge, DeviceBadge } from "@/components/project-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +44,7 @@ export default function Projects() {
   const [filterStatus, setFilterStatus] = useState<ProjectStatus | "all">("all");
   const [filterType, setFilterType] = useState<ProjectType | "all">("all");
   const [filterPriority, setFilterPriority] = useState<ProjectPriority | "all">("all");
+  const [filterDevice, setFilterDevice] = useState<ProjectDevice | "all">("all");
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
 
   const filtered = projects
@@ -53,6 +54,7 @@ export default function Projects() {
       if (filterStatus !== "all" && p.status !== filterStatus) return false;
       if (filterType !== "all" && p.type !== filterType) return false;
       if (filterPriority !== "all" && p.priority !== filterPriority) return false;
+      if (filterDevice !== "all" && p.device !== filterDevice) return false;
       return true;
     })
     .sort((a, b) => {
@@ -63,13 +65,14 @@ export default function Projects() {
       return 0;
     });
 
-  const hasFilters = search || filterStatus !== "all" || filterType !== "all" || filterPriority !== "all";
+  const hasFilters = search || filterStatus !== "all" || filterType !== "all" || filterPriority !== "all" || filterDevice !== "all";
 
   const clearFilters = () => {
     setSearch("");
     setFilterStatus("all");
     setFilterType("all");
     setFilterPriority("all");
+    setFilterDevice("all");
   };
 
   return (
@@ -132,6 +135,20 @@ export default function Projects() {
             <SelectItem value="High">High</SelectItem>
             <SelectItem value="Medium">Medium</SelectItem>
             <SelectItem value="Low">Low</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterDevice} onValueChange={(v) => setFilterDevice(v as ProjectDevice | "all")}>
+          <SelectTrigger data-testid="select-filter-device" className="w-36 h-8 text-sm">
+            <SelectValue placeholder="Device" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Devices</SelectItem>
+            <SelectItem value="Desktop">Desktop</SelectItem>
+            <SelectItem value="Mobile">Mobile</SelectItem>
+            <SelectItem value="Tablet">Tablet</SelectItem>
+            <SelectItem value="TV">TV</SelectItem>
+            <SelectItem value="POS">POS</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
@@ -202,6 +219,7 @@ export default function Projects() {
                       )}
                       <TypeBadge type={project.type} />
                       <EffortBadge effort={project.effort} />
+                      {project.device && <DeviceBadge device={project.device} />}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">

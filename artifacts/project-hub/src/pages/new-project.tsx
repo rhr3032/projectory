@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { useProjects } from "@/lib/store";
-import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort } from "@/lib/store";
+import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort, ProjectDevice } from "@/lib/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,6 +27,7 @@ const schema = z.object({
   owner: z.string().min(1, "Owner is required"),
   priority: z.enum(["Critical", "High", "Medium", "Low"]),
   effort: z.enum(["XS", "S", "M", "L", "XL"]),
+  device: z.enum(["Desktop", "Mobile", "Tablet", "TV", "POS", "Other"]).optional(),
   description: z.string().min(1, "Description is required"),
   dueDate: z.string().optional(),
   tags: z.string().optional(),
@@ -47,6 +48,7 @@ export default function NewProject() {
       owner: "",
       priority: "Medium",
       effort: "M",
+      device: undefined,
       description: "",
       dueDate: "",
       tags: "",
@@ -61,6 +63,7 @@ export default function NewProject() {
       owner: values.owner,
       priority: values.priority as ProjectPriority,
       effort: values.effort as ProjectEffort,
+      device: values.device as ProjectDevice | undefined,
       description: values.description,
       dueDate: values.dueDate || undefined,
       tags: values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
@@ -214,6 +217,32 @@ export default function NewProject() {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="device"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Device</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-device">
+                          <SelectValue placeholder="Select a device..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Desktop">🖥 Desktop</SelectItem>
+                        <SelectItem value="Mobile">📱 Mobile</SelectItem>
+                        <SelectItem value="Tablet">📲 Tablet</SelectItem>
+                        <SelectItem value="TV">📺 TV</SelectItem>
+                        <SelectItem value="POS">🛒 POS</SelectItem>
+                        <SelectItem value="Other">⚙️ Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

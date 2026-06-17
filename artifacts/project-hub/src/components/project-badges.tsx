@@ -6,8 +6,14 @@ import {
   ArrowRight,
   ArrowDown,
   Minus,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Tv,
+  ShoppingCart,
+  Cpu,
 } from "lucide-react";
-import type { ProjectStatus, ProjectPriority, ProjectType, ProjectEffort } from "@/lib/store";
+import type { ProjectStatus, ProjectPriority, ProjectType, ProjectEffort, ProjectDevice } from "@/lib/store";
 
 export function StatusBadge({ status }: { status: ProjectStatus }) {
   const config: Record<ProjectStatus, { label: string; className: string }> = {
@@ -118,5 +124,23 @@ export function EffortDots({ effort }: { effort: ProjectEffort }) {
         />
       ))}
     </div>
+  );
+}
+
+export function DeviceBadge({ device }: { device: ProjectDevice }) {
+  const config: Record<ProjectDevice, { icon: React.ElementType; className: string }> = {
+    Desktop: { icon: Monitor, className: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300" },
+    Mobile: { icon: Smartphone, className: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300" },
+    Tablet: { icon: Tablet, className: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-300" },
+    TV: { icon: Tv, className: "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300" },
+    POS: { icon: ShoppingCart, className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300" },
+    Other: { icon: Cpu, className: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400" },
+  };
+  const { icon: Icon, className } = config[device];
+  return (
+    <Badge variant="outline" className={cn("font-medium text-xs gap-1", className)}>
+      <Icon className="w-3 h-3" />
+      {device}
+    </Badge>
   );
 }

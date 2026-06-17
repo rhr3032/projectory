@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useProjects } from "@/lib/store";
-import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort } from "@/lib/store";
-import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge } from "@/components/project-badges";
+import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort, ProjectDevice } from "@/lib/store";
+import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge, DeviceBadge } from "@/components/project-badges";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -40,6 +40,7 @@ const schema = z.object({
   owner: z.string().min(1, "Required"),
   priority: z.enum(["Critical", "High", "Medium", "Low"]),
   effort: z.enum(["XS", "S", "M", "L", "XL"]),
+  device: z.enum(["Desktop", "Mobile", "Tablet", "TV", "POS", "Other"]).optional(),
   description: z.string().min(1, "Required"),
   dueDate: z.string().optional(),
   tags: z.string().optional(),
@@ -64,6 +65,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           owner: project.owner,
           priority: project.priority,
           effort: project.effort,
+          device: project.device,
           description: project.description,
           dueDate: project.dueDate || "",
           tags: project.tags?.join(", ") || "",
@@ -91,6 +93,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       owner: values.owner,
       priority: values.priority as ProjectPriority,
       effort: values.effort as ProjectEffort,
+      device: values.device as ProjectDevice | undefined,
       description: values.description,
       dueDate: values.dueDate || undefined,
       tags: values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
@@ -303,6 +306,31 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                 </div>
                 <FormField
                   control={form.control}
+                  name="device"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Device</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-edit-device">
+                            <SelectValue placeholder="Select a device..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Desktop">🖥 Desktop</SelectItem>
+                          <SelectItem value="Mobile">📱 Mobile</SelectItem>
+                          <SelectItem value="Tablet">📲 Tablet</SelectItem>
+                          <SelectItem value="TV">📺 TV</SelectItem>
+                          <SelectItem value="POS">🛒 POS</SelectItem>
+                          <SelectItem value="Other">⚙️ Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
@@ -362,6 +390,12 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
               { label: "Status", value: <StatusBadge status={project.status} /> },
               { label: "Priority", value: <PriorityBadge priority={project.priority} /> },
               { label: "Effort", value: <EffortBadge effort={project.effort} /> },
+              {
+                label: "Device",
+                value: project.device
+                  ? <DeviceBadge device={project.device} />
+                  : <span className="text-sm text-muted-foreground">Not set</span>,
+              },
               {
                 label: "Owner",
                 value: (

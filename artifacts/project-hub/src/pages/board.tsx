@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useProjects } from "@/lib/store";
 import type { ProjectStatus } from "@/lib/store";
-import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge } from "@/components/project-badges";
+import { StatusBadge, PriorityBadge, TypeBadge, EffortBadge, DeviceBadge } from "@/components/project-badges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, User, Calendar } from "lucide-react";
@@ -70,6 +70,7 @@ export default function Board() {
                           <div className="flex items-center gap-1.5 flex-wrap mb-2">
                             <TypeBadge type={project.type} />
                             <EffortBadge effort={project.effort} />
+                            {project.device && <DeviceBadge device={project.device} />}
                           </div>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span className="flex items-center gap-1 font-medium">
