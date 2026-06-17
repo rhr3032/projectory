@@ -1,7 +1,7 @@
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useProjects } from "@/lib/store";
 import type { ProjectStatus, ProjectType, ProjectPriority, ProjectEffort, ProjectDevice } from "@/lib/store";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -13,12 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus } from "lucide-react";
-import { Link } from "wouter";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { ArrowLeft, Plus, Trash2, ExternalLink } from "lucide-react";
 
 const schema = z.object({
   name: z.string().min(1, "Project name is required").max(100),
@@ -29,7 +28,13 @@ const schema = z.object({
   effort: z.enum(["XS", "S", "M", "L", "XL"]),
   device: z.enum(["Desktop", "Mobile", "Tablet", "TV", "POS", "Other"]).optional(),
   description: z.string().min(1, "Description is required"),
-  dueDate: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  deadline: z.string().optional(),
+  clientName: z.string().optional(),
+  clientContact: z.string().optional(),
+  previewLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  resourceLinks: z.array(z.object({ url: z.string().url("Must be a valid URL").or(z.literal("")) })).optional(),
   tags: z.string().optional(),
 });
 
@@ -50,10 +55,18 @@ export default function NewProject() {
       effort: "M",
       device: undefined,
       description: "",
-      dueDate: "",
+      startDate: "",
+      endDate: "",
+      deadline: "",
+      clientName: "",
+      clientContact: "",
+      previewLink: "",
+      resourceLinks: [],
       tags: "",
     },
   });
+
+  const { fields, append, remove } = useFieldArray({ control: form.control, name: "resourceLinks" });
 
   const onSubmit = (values: FormValues) => {
     addProject({
@@ -65,7 +78,13 @@ export default function NewProject() {
       effort: values.effort as ProjectEffort,
       device: values.device as ProjectDevice | undefined,
       description: values.description,
-      dueDate: values.dueDate || undefined,
+      startDate: values.startDate || undefined,
+      endDate: values.endDate || undefined,
+      deadline: values.deadline || undefined,
+      clientName: values.clientName || undefined,
+      clientContact: values.clientContact || undefined,
+      previewLink: values.previewLink || undefined,
+      resourceLinks: values.resourceLinks?.map((r) => r.url).filter(Boolean) || undefined,
       tags: values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
     });
     navigate("/projects");
@@ -85,13 +104,15 @@ export default function NewProject() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Project Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+
+          {/* Core Info */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project Info</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -99,7 +120,7 @@ export default function NewProject() {
                   <FormItem>
                     <FormLabel>Project Name <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
-                      <Input data-testid="input-project-name" placeholder="e.g. Redesign Onboarding Flow" {...field} />
+                      <Input placeholder="e.g. Redesign Onboarding Flow" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -114,11 +135,7 @@ export default function NewProject() {
                     <FormItem>
                       <FormLabel>Type <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-type">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
                           <SelectItem value="Web App">Web App</SelectItem>
@@ -136,11 +153,7 @@ export default function NewProject() {
                     <FormItem>
                       <FormLabel>Status <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-status">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="Planning">Planning</SelectItem>
                           <SelectItem value="In Progress">In Progress</SelectItem>
@@ -163,11 +176,7 @@ export default function NewProject() {
                     <FormItem>
                       <FormLabel>Priority <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-priority">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="Critical">Critical</SelectItem>
                           <SelectItem value="High">High</SelectItem>
@@ -186,11 +195,7 @@ export default function NewProject() {
                     <FormItem>
                       <FormLabel>Effort <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-effort">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           <SelectItem value="XS">XS — Extra Small</SelectItem>
                           <SelectItem value="S">S — Small</SelectItem>
@@ -205,13 +210,21 @@ export default function NewProject() {
                 />
                 <FormField
                   control={form.control}
-                  name="owner"
+                  name="device"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Owner <span className="text-destructive">*</span></FormLabel>
-                      <FormControl>
-                        <Input data-testid="input-owner" placeholder="Name" {...field} />
-                      </FormControl>
+                      <FormLabel>Device</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="Desktop">🖥 Desktop</SelectItem>
+                          <SelectItem value="Mobile">📱 Mobile</SelectItem>
+                          <SelectItem value="Tablet">📲 Tablet</SelectItem>
+                          <SelectItem value="TV">📺 TV</SelectItem>
+                          <SelectItem value="POS">🛒 POS</SelectItem>
+                          <SelectItem value="Other">⚙️ Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -220,94 +233,219 @@ export default function NewProject() {
 
               <FormField
                 control={form.control}
-                name="device"
+                name="owner"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target Device</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-device">
-                          <SelectValue placeholder="Select a device..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Desktop">🖥 Desktop</SelectItem>
-                        <SelectItem value="Mobile">📱 Mobile</SelectItem>
-                        <SelectItem value="Tablet">📲 Tablet</SelectItem>
-                        <SelectItem value="TV">📺 TV</SelectItem>
-                        <SelectItem value="POS">🛒 POS</SelectItem>
-                        <SelectItem value="Other">⚙️ Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Owner <span className="text-destructive">*</span></FormLabel>
+                    <FormControl>
+                      <Input placeholder="Name" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
 
+          {/* Description */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Description</CardTitle>
+            </CardHeader>
+            <CardContent>
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
-                      <Textarea
-                        data-testid="input-description"
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
                         placeholder="What is this project about? What does success look like?"
-                        className="resize-none"
-                        rows={3}
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
 
+          {/* Dates */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="deadline"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Deadline</FormLabel>
+                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Client */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="dueDate"
+                  name="clientName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <FormControl>
-                        <Input data-testid="input-due-date" type="date" {...field} />
-                      </FormControl>
+                      <FormLabel>Client Name</FormLabel>
+                      <FormControl><Input placeholder="e.g. Acme Corp" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
-                  name="tags"
+                  name="clientContact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tags</FormLabel>
-                      <FormControl>
-                        <Input data-testid="input-tags" placeholder="design, mobile, core (comma-separated)" {...field} />
-                      </FormControl>
+                      <FormLabel>Email / Phone</FormLabel>
+                      <FormControl><Input placeholder="e.g. hello@acme.com or +1 555 000" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <Link href="/projects">
-                  <Button type="button" variant="outline" data-testid="button-cancel">
-                    Cancel
+          {/* Links */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Links</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="previewLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preview Link</FormLabel>
+                    <FormControl><Input placeholder="https://preview.yourproject.com" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium leading-none">Resource Links</label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1.5 text-xs"
+                    onClick={() => append({ url: "" })}
+                  >
+                    <Plus className="w-3 h-3" /> Add Link
                   </Button>
-                </Link>
-                <Button type="submit" className="gap-2" data-testid="button-submit-project">
-                  <Plus className="w-4 h-4" />
-                  Create Project
-                </Button>
+                </div>
+                <div className="space-y-2">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-start gap-2">
+                      <FormField
+                        control={form.control}
+                        name={`resourceLinks.${index}.url`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input placeholder="https://figma.com/file/..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 text-muted-foreground hover:text-destructive flex-shrink-0"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  {fields.length === 0 && (
+                    <p className="text-xs text-muted-foreground py-1">No resource links yet. Click "Add Link" to add one.</p>
+                  )}
+                </div>
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+
+          {/* Tags */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tags</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="design, mobile, core (comma-separated)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <div className="flex items-center justify-end gap-3 pb-6">
+            <Link href="/projects">
+              <Button type="button" variant="outline">Cancel</Button>
+            </Link>
+            <Button type="submit" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Create Project
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

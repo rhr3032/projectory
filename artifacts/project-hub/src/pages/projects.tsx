@@ -27,6 +27,7 @@ import {
   User,
   Calendar,
   X,
+  Building2,
 } from "lucide-react";
 
 type SortKey = "name" | "createdAt" | "priority" | "status";
@@ -205,16 +206,22 @@ export default function Projects() {
                       <StatusBadge status={project.status} />
                       <PriorityBadge priority={project.priority} />
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{project.description}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{project.description.replace(/<[^>]*>/g, "")}</p>
                     <div className="flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         {project.owner}
                       </span>
-                      {project.dueDate && (
+                      {project.clientName && (
                         <span className="flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {project.clientName}
+                        </span>
+                      )}
+                      {project.deadline && (
+                        <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 font-medium">
                           <Calendar className="w-3 h-3" />
-                          {new Date(project.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                       )}
                       <TypeBadge type={project.type} />

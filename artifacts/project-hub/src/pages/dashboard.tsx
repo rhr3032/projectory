@@ -198,7 +198,7 @@ export default function Dashboard() {
                   >
                     {project.name}
                   </Link>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{project.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{project.description.replace(/<[^>]*>/g, "")}</p>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
                   <TypeBadge type={project.type} />

@@ -77,10 +77,10 @@ export default function Board() {
                               <User className="w-3 h-3" />
                               {project.owner.split(" ")[0]}
                             </span>
-                            {project.dueDate && (
-                              <span className="flex items-center gap-1">
+                            {project.deadline && (
+                              <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
                                 <Calendar className="w-3 h-3" />
-                                {new Date(project.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                               </span>
                             )}
                           </div>
